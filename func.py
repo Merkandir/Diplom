@@ -43,8 +43,8 @@ def get_city(city):
     }
     response = vk_app_token.method('database.getCities', values=values)
     if response['items']:
-        if len(response['items'][0]['title']) != city:
-            print(response['items'][0]['title'])
+        # if len(response['items'][0]['title']) != city:
+        #     print(response['items'][0]['title'])
         city_id = response['items'][0]['id']
         return city_id
     else:

@@ -7,12 +7,7 @@ def main():
         if event.type == VkEventType.MESSAGE_NEW:
             if event.to_me:
                 request = event.text.lower().strip()
-                if request == "привет":
-                    user_info = get_user_info(event.user_id)
-                    write_msg(event.user_id, f"Привет, {user_info.get('first_name')}!")
-                elif request == "пока":
-                    write_msg(event.user_id, "Пока((")
-                elif request == "го":
+                if request == "поехали":
                     conn = psycopg2.connect(database="vkdb", user="postgres", password="123")
                     user_info = get_user_info(event.user_id)
                     if user_info:
@@ -77,7 +72,8 @@ def main():
                     conn.close()
 
                 else:
-                    write_msg(event.user_id, "Не поняла вашего ответа...")
+                    write_msg(event.user_id, f"""Вас приветствует бот VKinder &#9995;\n
+                                                 Введите "поехали", чтобы начать.""")
 
 
 if __name__ == '__main__':
