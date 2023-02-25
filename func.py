@@ -45,7 +45,6 @@ def get_city(city):
     if response['items']:
         if len(response['items'][0]['title']) != city:
             print(response['items'][0]['title'])
-
         city_id = response['items'][0]['id']
         return city_id
     else:
@@ -166,13 +165,13 @@ def get_photos(selected_user):
         return False
 
 
-def get_final_selection(conn, users_list_range, users_list):
+def get_final_selection(conn, users_list_range, users_list, user_db_id):
     while True:
         selected_user = get_random_user(users_list_range, users_list)
         photos_info = get_photos(selected_user)
         if photos_info.get('count') < 3:
             continue
-        if check_result_user(conn, selected_user.get('id')):
+        if check_result_user(conn, selected_user.get('id'), user_db_id):
             return selected_user, photos_info
         else:
             continue

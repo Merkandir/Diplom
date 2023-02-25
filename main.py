@@ -13,7 +13,7 @@ def main():
                 elif request == "пока":
                     write_msg(event.user_id, "Пока((")
                 elif request == "го":
-                    conn = psycopg2.connect(database="vkdb", user="postgres", password="postgres")
+                    conn = psycopg2.connect(database="vkdb", user="postgres", password="123")
                     user_info = get_user_info(event.user_id)
                     if user_info:
 
@@ -42,32 +42,38 @@ def main():
                                 print(_ex)
                                 pass
 
-                            write_msg(event.user_id, "Отлично, ищем пару! Это может занять некоторое время &#129300;")
+                            if user_db_id:
+                                write_msg(event.user_id, "Отлично, ищем пару! Это займёт некоторое время... &#129300;")
 
-                            find_users_range, find_users_list = find_users(user_info)
+                                try:
+                                    find_users_range, find_users_list = find_users(user_info)
+                                    write_msg(event.user_id,
+                                              f"По вашим данным найдено {find_users_range} "
+                                              f"результатов, выбираем тот самый профиль...&#128522;")
 
-                            if find_users_range != 0:
-                                write_msg(event.user_id,
-                                          f"По вашим данным найдено {find_users_range} " 
-                                          f"результатов, выбираем тот самый профиль...&#128522;")
+                                    finally_selected_user, photos_info = get_final_selection(conn,
+                                                                                             find_users_range,
+                                                                                             find_users_list,
+                                                                                             user_db_id)
 
-                                finally_selected_user, photos_info = get_final_selection(conn, find_users_range,
-                                                                                         find_users_list)
+                                    try:
+                                        insert_result_user(conn, user_db_id, finally_selected_user)
+                                    except Exception as _ex:
+                                        print(_ex)
 
-                                insert_result_user(conn, user_db_id, finally_selected_user)
+                                    photos_link = get_most_popular_photo(photos_info)
+                                    write_photo_msg(event.user_id,
+                                                    f"""Вам подходит {finally_selected_user.get('first_name')}"""
+                                                    f"""{finally_selected_user.get('last_name')} &#128150;\n"""
+                                                    f"""Профиль: https://vk.com/id{finally_selected_user.get('id')}\n"""
+                                                    f"""Самые популярные фоторафии:""", finally_selected_user,
+                                                    photos_link)
+                                except Exception as _ex:
+                                    print(_ex)
+                                    write_msg(event.user_id,
+                                              f"К сожалению нет людей в вашем городе, подходящих под ваши параметры,"
+                                              f"попробуйте выбрать ближайшие города.")
 
-                                photos_link = get_most_popular_photo(photos_info)
-                                write_photo_msg(event.user_id,
-                                                f"""Вам подходит {finally_selected_user.get('first_name')} """
-                                                f"""{finally_selected_user.get('last_name')} &#128150;\n"""
-                                                f"""Профиль - https://vk.com/id{finally_selected_user.get('id')}\n"""
-                                                f"""Самые популярные фоторафии:""", finally_selected_user,
-                                                photos_link)
-
-                            else:
-                                write_msg(event.user_id,
-                                          f"К сожалению нет людей в вашем городе, подходящих под ваши параметры,"
-                                          f"попробуйте выбрать ближайшие города.")
                     conn.close()
 
                 else:

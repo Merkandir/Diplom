@@ -34,7 +34,6 @@ def delete_tables(conn):
 
 
 def insert_user(conn, user_info):
-    print(user_info)
     with conn.cursor() as cursor:
         cursor.execute("""
         INSERT INTO users(vk_id, first_name, last_name, age, city_id) VALUES
@@ -53,7 +52,6 @@ def insert_user(conn, user_info):
 
 
 def insert_result_user(conn, user_db_id, finally_selected_user):
-    print(user_db_id)
     with conn.cursor() as cursor:
         cursor.execute("""
         INSERT INTO result_users(vk_id, user_id) VALUES
@@ -76,14 +74,14 @@ def get_user_db_id(conn, vk_id):
         return False
 
 
-def check_result_user(conn, user_id):
+def check_result_user(conn, user_id, user_db_id):
     with conn.cursor() as cursor:
         cursor.execute("""
         SELECT vk_id FROM result_users
-        WHERE vk_id = %s
-        """, (user_id,))
-        user_db_id = cursor.fetchone()
-    if user_db_id is not None:
+        WHERE vk_id = %s AND user_id = %s
+        """, (user_id, user_db_id,))
+        result_user_db_id = cursor.fetchone()
+    if result_user_db_id is not None:
         return False
     else:
         return True
